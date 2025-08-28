@@ -1,0 +1,29 @@
+{% extends "material/base.html" %}
+{% block title %}{{ title }} · El-Da7e7a{% endblock %}
+{% block content %}
+<div class="container" style="max-width:720px">
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <h3 class="mb-3">{{ title }}</h3>
+      <form method="post" enctype="multipart/form-data" class="row g-3">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        {% for field in form %}
+          <div class="col-12">
+            <label class="form-label">{{ field.label }}</label>
+            {{ field }}
+            {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+            {% for error in field.errors %}
+              <div class="invalid-feedback d-block">{{ error }}</div>
+            {% endfor %}
+          </div>
+        {% endfor %}
+        <div class="d-flex gap-2">
+          <button class="btn btn-primary">Save</button>
+          <a href="{% url 'material:home' %}" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,89 @@
+{% extends "material/base.html" %}
+{% block title %}Quiz Builder · El-Da7e7a{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width:800px">
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <h3 class="mb-3">Create Quiz</h3>
+      <form method="post" id="quizForm">
+        {% csrf_token %}
+
+        <div class="mb-3">
+          <label class="form-label">Quiz Title</label>
+          <input type="text" class="form-control" name="title" required>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Level</label>
+          <select class="form-select" name="level" required>
+            {% for level in levels %}
+              <option value="{{ level.id }}">{{ level.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <hr>
+        <h5>Questions</h5>
+        <div id="questions"></div>
+        <input type="hidden" name="question_count" id="question_count" value="0">
+
+        <button type="button" class="btn btn-outline-primary" onclick="addQuestion()">+ Add Question</button>
+        <hr>
+        <button class="btn btn-success">Save Quiz</button>
+        <a href="{% url 'material:home' %}" class="btn btn-outline-secondary">Cancel</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let questionIndex = 0;
+
+function addQuestion() {
+  questionIndex++;
+  document.getElementById("question_count").value = questionIndex;
+
+  const qDiv = document.createElement("div");
+  qDiv.classList.add("card", "mt-3");
+  qDiv.innerHTML = `
+    <div class="card-body">
+      <h6>Question ${questionIndex}</h6>
+      <div class="mb-2">
+        <input type="text" class="form-control" name="question_${questionIndex}_text" placeholder="Question text" required>
+      </div>
+      <div class="mb-2">
+        <select class="form-select" name="question_${questionIndex}_type">
+          <option value="single">Single Choice</option>
+          <option value="multiple">Multiple Choice</option>
+          <option value="truefalse">True / False</option>
+        </select>
+      </div>
+      <div id="answers_${questionIndex}"></div>
+      <input type="hidden" name="question_${questionIndex}_answer_count" id="question_${questionIndex}_answer_count" value="0">
+      <button type="button" class="btn btn-sm btn-outline-secondary" onclick="addAnswer(${questionIndex})">+ Add Answer</button>
+    </div>
+  `;
+  document.getElementById("questions").appendChild(qDiv);
+}
+
+function addAnswer(qIndex) {
+  const aCountInput = document.getElementById(`question_${qIndex}_answer_count`);
+  let aIndex = parseInt(aCountInput.value) + 1;
+  aCountInput.value = aIndex;
+
+  const container = document.getElementById(`answers_${qIndex}`);
+  const div = document.createElement("div");
+  div.classList.add("input-group", "mb-2");
+  div.innerHTML = `
+    <div class="input-group-text">
+      <input type="checkbox" name="question_${qIndex}_answer_${aIndex}_correct">
+    </div>
+    <input type="text" class="form-control" name="question_${qIndex}_answer_${aIndex}_text" placeholder="Answer option" required>
+  `;
+  container.appendChild(div);
+}
+</script>
+{% endblock %}

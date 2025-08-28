@@ -1,0 +1,223 @@
+{% extends "material/base.html" %}
+{% block title %}{{ level.name }} · El-Da7e7a{% endblock %}
+{% block content %}
+<div class="container my-3">
+
+  <div class="row g-3 align-items-center mb-4">
+    <div class="col-md-3">
+      {% if level.image %}
+        <img src="{{ level.image.url }}" class="img-fluid rounded">
+      {% else %}
+        <div class="bg-secondary bg-opacity-10 rounded d-flex align-items-center justify-content-center" style="height:160px">No Image</div>
+      {% endif %}
+    </div>
+    <div class="col-md-9">
+      <h2 class="mb-2">{{ level.name }}</h2>
+      <p class="text-muted mb-0">{{ level.description|default:"No description." }}</p>
+    </div>
+  </div>
+
+  <ul class="nav nav-tabs mb-3" role="tablist">
+    <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#books" type="button">📚 Books</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#notes" type="button">📝 Notes</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#records" type="button">🎤 Audio</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#images" type="button">🖼️ Images</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#news" type="button">📰 News</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#quiz" type="button">❓ Quiz</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#qa" type="button">💬 Q&amp;A</button></li>
+  </ul>
+
+  <div class="tab-content">
+    <!-- Books -->
+    <div class="tab-pane fade show active" id="books">
+      {% if books %}
+      <div class="row g-3">
+        {% for book in books %}
+        <div class="col-md-4">
+          <div class="card h-100">
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title">{{ book.title }}</h5>
+              <p class="card-text text-muted small flex-grow-1">{{ book.description }}</p>
+              <a href="{{ book.file.url }}" target="_blank" class="btn btn-primary mt-2">Download</a>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}<p class="text-muted">No books.</p>{% endif %}
+      {% if user.is_authenticated and user.is_staff %}
+        <a href="{% url 'material:book_create' %}" class="btn btn-outline-secondary btn-sm mt-3">Add Book</a>
+      {% endif %}
+    </div>
+
+    <!-- Notes -->
+    <div class="tab-pane fade" id="notes">
+      {% if notes %}
+      <ul class="list-group">
+        {% for note in notes %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          {{ note.title }}
+          <a href="{{ note.file.url }}" target="_blank" class="btn btn-sm btn-success">Download</a>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}<p class="text-muted">No notes.</p>{% endif %}
+      {% if user.is_authenticated and user.is_staff %}
+        <a href="{% url 'material:note_create' %}" class="btn btn-outline-secondary btn-sm mt-3">Add Note</a>
+      {% endif %}
+    </div>
+
+    <!-- Records -->
+    <div class="tab-pane fade" id="records">
+      {% if records %}
+      <ul class="list-group">
+        {% for record in records %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          🎧 {{ record.title }}
+          <a href="{{ record.file.url }}" target="_blank" class="btn btn-sm btn-primary">Play/Download</a>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}<p class="text-muted">No audio records.</p>{% endif %}
+      {% if user.is_authenticated and user.is_staff %}
+        <a href="{% url 'material:record_create' %}" class="btn btn-outline-secondary btn-sm mt-3">Add Audio</a>
+      {% endif %}
+    </div>
+
+    <!-- Images -->
+    <div class="tab-pane fade" id="images">
+      {% if images %}
+      <div class="row g-3">
+        {% for img in images %}
+        <div class="col-6 col-md-3">
+          <div class="card">
+            <img src="{{ img.image.url }}" class="card-img-top" style="height:150px;object-fit:cover">
+            <div class="card-body p-2"><div class="small">{{ img.title }}</div></div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}<p class="text-muted">No images.</p>{% endif %}
+      {% if user.is_authenticated and user.is_staff %}
+        <a href="{% url 'material:image_create' %}" class="btn btn-outline-secondary btn-sm mt-3">Add Image</a>
+      {% endif %}
+    </div>
+
+    <!-- News -->
+    <div class="tab-pane fade" id="news">
+      {% if news_list %}
+      <div class="row g-3">
+        {% for n in news_list %}
+        <div class="col-md-4">
+          <div class="card h-100">
+            {% if n.image %}
+              <img src="{{ n.image.url }}" class="card-img-top" style="height:160px;object-fit:cover">
+            {% endif %}
+            <div class="card-body">
+              <h6 class="card-title">{{ n.title }}</h6>
+              <p class="card-text small text-muted">{{ n.content|truncatewords:25 }}</p>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+        <p class="text-muted">No news yet for this level.</p>
+      {% endif %}
+    </div>
+
+    <!-- Quiz -->
+    <div class="tab-pane fade" id="quiz">
+      {% if quizzes %}
+        {% for quiz in quizzes %}
+        <form method="post" action="{% url 'material:quiz_submit' level.id %}" class="card mb-3">
+          {% csrf_token %}
+          <input type="hidden" name="quiz_id" value="{{ quiz.id }}">
+          <div class="card-body">
+            <h5 class="card-title">{{ quiz.title }}</h5>
+            {% for question in quiz.questions.all %}
+              <p class="fw-semibold mt-3">{{ forloop.counter }}. {{ question.text }}</p>
+
+              {% if question.question_type == "multiple" %}
+                {% for answer in question.answers.all %}
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" name="question_{{ question.id }}" value="{{ answer.id }}" id="q{{question.id}}a{{answer.id}}">
+                  <label class="form-check-label" for="q{{question.id}}a{{answer.id}}">{{ answer.text }}</label>
+                </div>
+                {% endfor %}
+              {% else %}
+                {% for answer in question.answers.all %}
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="question_{{ question.id }}" value="{{ answer.id }}" id="q{{question.id}}a{{answer.id}}">
+                  <label class="form-check-label" for="q{{question.id}}a{{answer.id}}">{{ answer.text }}</label>
+                </div>
+                {% endfor %}
+              {% endif %}
+              <hr>
+            {% endfor %}
+            <button type="submit" class="btn btn-success">Submit Quiz</button>
+          </div>
+        </form>
+        {% endfor %}
+      {% else %}
+        <p class="text-muted">No quizzes yet.</p>
+      {% endif %}
+        {% if request.user.is_staff %}
+            <a href="{% url 'material:quiz_builder' level.id %}">Build Quiz</a>
+        {% endif %}
+    </div>
+
+    <!-- Q&A -->
+    <div class="tab-pane fade" id="qa">
+      <div class="mb-3">
+        <h5>Ask a question</h5>
+        <form method="post" action="{% url 'material:add_question' level.id %}" class="row g-2">
+          {% csrf_token %}
+          <div class="col-md-9"><input name="content" class="form-control" placeholder="Your question"></div>
+          <div class="col-md-3 d-grid d-md-block"><button class="btn btn-primary">Ask</button></div>
+        </form>
+      </div>
+
+      {% for q in questions %}
+      <div class="card mb-3">
+        <div class="card-body">
+          <div class="mb-2"><strong>{{ q.author_user|default:q.author|default:"Anon" }}</strong> <span class="text-muted small">• {{ q.created_at|date:"M d, Y H:i" }}</span></div>
+          <p class="mb-3">{{ q.content }}</p>
+
+          <h6 class="mb-2">Replies</h6>
+          {% if q.replies.all %}
+            <ul class="list-group mb-3">
+              {% for r in q.replies.all %}
+              <li class="list-group-item">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <strong>{{ r.author_user|default:r.author|default:"Anon" }}</strong>
+                    <span class="text-muted small">• {{ r.created_at|date:"M d, Y H:i" }}</span>
+                    <div>{{ r.content }}</div>
+                  </div>
+                  <div>
+                    <form method="post" action="{% url 'material:upvote_reply' r.id %}">
+                      {% csrf_token %}
+                      <button class="btn btn-sm btn-outline-success"><i class="bi bi-hand-thumbs-up"></i> {{ r.upvotes }}</button>
+                    </form>
+                  </div>
+                </div>
+              </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="text-muted">No replies yet.</p>
+          {% endif %}
+
+          <form method="post" action="{% url 'material:add_reply' q.id %}" class="row g-2">
+            {% csrf_token %}
+            <div class="col-md-9"><input name="content" class="form-control" placeholder="Your reply"></div>
+            <div class="col-md-3 d-grid d-md-block"><button class="btn btn-secondary">Reply</button></div>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

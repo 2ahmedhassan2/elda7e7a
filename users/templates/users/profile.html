@@ -1,0 +1,14 @@
+{% extends "material/base.html" %}
+{% block title %}My Profile{% endblock %}
+{% block content %}
+<div class="container" style="max-width:800px">
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <h3 class="mb-2">{{ user.username }}</h3>
+      <p class="mb-3 text-muted">{{ user.email }}</p>
+      <div class="alert alert-success">Your score: <strong>{{ honor.score|default:"0" }}</strong></div>
+      <p class="mb-0 small text-muted">Earn +10 per correct quiz answer. Earn +1 whenever your reply gets an upvote.</p>
+    </div>
+  </div>
+</div>
+{% endblock %}

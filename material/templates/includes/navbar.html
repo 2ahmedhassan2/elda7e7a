@@ -1,0 +1,37 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-black sticky-top">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="{% url 'material:home' %}">El-Da7e7a</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div id="nav" class="collapse navbar-collapse">
+      <ul class="navbar-nav ms-auto">
+        {% if request.resolver_match.url_name != 'home' %}
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'material:home' %}">Home</a>
+          </li>
+        {% endif %}
+
+        {% if user.is_authenticated %}
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Add</a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="{% url 'material:level_create' %}">Level</a></li>
+              <li><a class="dropdown-item" href="{% url 'material:book_create' %}">Book (PDF)</a></li>
+              <li><a class="dropdown-item" href="{% url 'material:note_create' %}">Note (PDF)</a></li>
+              <li><a class="dropdown-item" href="{% url 'material:record_create' %}">Audio</a></li>
+              <li><a class="dropdown-item" href="{% url 'material:image_create' %}">Image</a></li>
+              <li><a class="dropdown-item" href="{% url 'material:quiz_create' %}">Quiz</a></li>
+              <li><a class="dropdown-item" href="{% url 'material:material_create' %}">General Material</a></li>
+            </ul>
+          </li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'users:profile' %}">Profile</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'users:logout' %}">Logout</a></li>
+        {% else %}
+          <li class="nav-item"><a class="nav-link" href="{% url 'users:login' %}">Login</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'users:register' %}">Register</a></li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>

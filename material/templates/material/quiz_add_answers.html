@@ -1,0 +1,42 @@
+{% extends "material/base.html" %}
+{% block title %}Add Answers{% endblock %}
+{% block content %}
+<div class="container" style="max-width:800px">
+  <div class="card shadow-sm mb-3">
+    <div class="card-body">
+      <h3 class="mb-1">Add Answers</h3>
+      <div class="text-muted mb-2">Question: <strong>{{ question.text }}</strong> ({{ question.get_question_type_display }})</div>
+      <form method="post" class="row g-3">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        <div class="col-12">
+          <label class="form-label">Answer text</label>
+          {{ form.text }}
+        </div>
+        <div class="col-12 form-check">
+          {{ form.is_correct }} <label class="form-check-label ms-1">Is correct?</label>
+        </div>
+        <button class="btn btn-primary">Add Answer</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <h5 class="mb-3">Existing Answers</h5>
+      {% if answers %}
+        <ul class="list-group">
+          {% for a in answers %}
+            <li class="list-group-item d-flex justify-content-between">
+              <span>{{ a.text }}</span>
+              {% if a.is_correct %}<span class="badge bg-success">Correct</span>{% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="text-muted mb-0">No answers yet.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

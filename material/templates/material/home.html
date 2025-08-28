@@ -1,0 +1,146 @@
+{% extends "material/base.html" %}
+{% block title %}Home · El-Da7e7a{% endblock %}
+{% block content %}
+
+<header class="text-white text-center d-flex align-items-center" style="
+    position: relative;
+    background: linear-gradient(rgba(0,0,0,.6), rgba(0,0,0,.6)), 
+                url('https://aun.edu.eg/commerce/sites/default/files/inline-images/About%20-%20AUN%20Commerce%20Faculty.png') center/cover no-repeat;
+    min-height: 65vh;
+">
+  <div class="container">
+    <h1 class="fw-bold display-5 mb-3">This site is made for you, Accountants</h1>
+    <p class="lead">Explore your levels, track achievements, and shine on the honor board</p>
+    <a href="#levels" class="btn btn-primary btn-lg mt-3 shadow">Get Started</a>
+  </div>
+</header>
+
+<div class="container my-5">
+
+  {% if slides %}
+  <div id="newsCarousel" class="carousel slide mb-5 shadow rounded overflow-hidden" data-bs-ride="carousel">
+    <div class="carousel-inner">
+      {% for n in slides %}
+      <div class="carousel-item {% if forloop.first %}active{% endif %}">
+        {% if n.image %}
+          <img src="{{ n.image.url }}" class="d-block w-100 h-100" style="object-fit:cover">
+        {% endif %}
+        <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded p-2">
+          <h5 class="mb-1">{{ n.title }}</h5>
+          <p class="mb-0 small">{{ n.content|truncatewords:20 }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#newsCarousel" data-bs-slide="prev">
+      <span class="carousel-control-prev-icon"></span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#newsCarousel" data-bs-slide="next">
+      <span class="carousel-control-next-icon"></span>
+    </button>
+  </div>
+  {% endif %}
+
+  <section class="mb-5" id="levels">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h3 class="mb-0">Choose Your Level</h3>
+      {% if user.is_authenticated and user.is_staff %}
+        <a class="btn btn-sm btn-outline-primary" href="{% url 'material:level_create' %}">
+          <i class="bi bi-plus-circle"></i> New Level
+        </a>
+      {% endif %}
+    </div>
+    <div class="row g-4">
+      {% for level in levels %}
+      <div class="col-sm-6 col-md-4 col-lg-3">
+        <div class="card h-100 shadow-sm hover-shadow">
+          {% if level.image %}
+            <img src="{{ level.image.url }}" class="card-img-top" style="object-fit:cover">
+          {% endif %}
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title">{{ level.name }}</h5>
+            <p class="card-text text-muted small flex-grow-1">{{ level.description|default:""|truncatewords:20 }}</p>
+            <div class="mt-2 d-flex gap-2">
+              <a href="{% url 'material:details' level.id %}" class="btn btn-sm btn-outline-primary">Details</a>
+              {% if user.is_authenticated and user.is_staff %}
+                <a href="{% url 'material:level_edit' level.id %}" class="btn btn-sm btn-warning">Edit</a>
+                <a href="{% url 'material:level_delete' level.id %}" class="btn btn-sm btn-danger">Delete</a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+        <p class="text-muted">No levels yet.</p>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="mb-5">
+    <h3 class="mb-3">🏅 Honor Board</h3>
+    <div class="row g-3">
+      {% for item in top_students %}
+      <div class="col-6 col-md-3 col-lg-2">
+        <div class="card text-center h-100 shadow-sm">
+          <div class="card-body">
+            <div class="display-6">
+              {% if item.rank == 1 %}🥇{% elif item.rank == 2 %}🥈{% elif item.rank == 3 %}🥉{% else %}{{ item.rank }}{% endif %}
+            </div>
+            <div class="fw-semibold">{{ item.student.user.username }}</div>
+            <div class="badge bg-success mt-2">Score: {{ item.student.score }}</div>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <p class="text-muted">No scores yet. Answer quizzes or get upvotes!</p>
+      {% endfor %}
+    </div>
+  </section>
+
+  {% if news_list %}
+  <section class="mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h3 class="mb-0">Latest News</h3>
+    </div>
+    <div class="row g-3">
+      {% for n in news_list %}
+      <div class="col-md-4">
+        <div class="card h-100 shadow-sm">
+          {% if n.image %}
+            <img src="{{ n.image.url }}" class="card-img-top" style="object-fit:cover">
+          {% endif %}
+          <div class="card-body d-flex flex-column">
+            <h6 class="card-title">{{ n.title }}</h6>
+            <p class="card-text small text-muted flex-grow-1">{{ n.content|truncatewords:25 }}</p>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+</div>
+
+{% block extra_css %}
+<style>
+  .hero-header {
+    background: linear-gradient(rgba(0,0,0,.55), rgba(0,0,0,.55)), 
+                url("https://aun.edu.eg/commerce/sites/default/files/inline-images/About%20-%20AUN%20Commerce%20Faculty.png") 
+                center/cover no-repeat;
+  }
+
+  /* Carousel full height */
+  #newsCarousel,
+  #newsCarousel .carousel-item,
+  #newsCarousel img {
+    height: 100vh; /* Full screen height */
+  }
+
+  /* Card images should cover card tops */
+  .card-img-top {
+    height: 100%;
+    object-fit: cover;
+  }
+</style>
+{% endblock %}
+{% endblock %}
